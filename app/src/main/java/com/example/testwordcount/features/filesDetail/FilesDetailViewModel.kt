@@ -17,7 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class FilesDetailViewModel @Inject constructor(
     private val filesRepository: FilesRepository
-): ViewModel() {
+) : ViewModel() {
 
     private val _viewState = MutableStateFlow<ViewState>(ViewState.Empty)
     val viewState: StateFlow<ViewState> get() = _viewState
@@ -25,38 +25,40 @@ class FilesDetailViewModel @Inject constructor(
     private val _fileProcessed = MutableLiveData<TextFile>()
     val fileProcessed: LiveData<TextFile> get() = _fileProcessed
 
-    lateinit var textFileProcessed: TextFile
+    private lateinit var _textFileProcessed: TextFile
 
-    init{
+    init {
         _viewState.value = ViewState.Empty
     }
 
-    fun readFile(name: String){
-        //Show progress
+    fun readFile(name: String) {
+        _viewState.value = ViewState.Loading
         viewModelScope.launch {
             val fileReaded = filesRepository.readFile(name)
             val fileProcessed = filesRepository.processText(name, fileReaded)
 
             Log.d("RES", fileProcessed.toString())
 
-            //Hide loader
+            _textFileProcessed = fileProcessed
+            _fileProcessed.postValue(fileProcessed)
+            _viewState.value = ViewState.Success
         }
     }
 
-    fun getTextFile(): TextFile{
-        return textFileProcessed
+    fun getTextFile(): TextFile {
+        return _textFileProcessed
     }
 
-    fun getWordTimes(): Map<String, Int>{
-        return textFileProcessed.mapTimes
+    fun getWordTimes(): List<String> {
+        return _textFileProcessed.mapTimes
     }
 
-    fun getWordPosition(): List<String>{
-        return textFileProcessed.mapPosition.toList()
+    fun getWordPosition(): List<String> {
+        return _textFileProcessed.mapPosition
     }
 
-    fun getWordAlphabetical(): List<String>{
-        return textFileProcessed.mapOrder.toList()
+    fun getWordAlphabetical(): List<String> {
+        return _textFileProcessed.mapOrder
     }
 
 

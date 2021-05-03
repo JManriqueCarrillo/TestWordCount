@@ -9,7 +9,7 @@ import javax.inject.Inject
 
 class FilesRepositoryImpl @Inject constructor(
     @ApplicationContext val context: Context
-): FilesRepository {
+) : FilesRepository {
 
     override fun getFiles(): List<String> {
         try {
@@ -49,7 +49,15 @@ class FilesRepositoryImpl @Inject constructor(
                 }
             }
         }
-        return TextFile(name, mapTimes, mapOrder, mapPosition)
+
+
+
+        return TextFile(
+            name,
+            mapTimes.toList().sortedByDescending { it.second }.map { "${it.first} (${it.second})" },
+            mapOrder.toList(),
+            mapPosition.toList()
+        )
     }
 
     private fun normalizeWord(word: String): String {

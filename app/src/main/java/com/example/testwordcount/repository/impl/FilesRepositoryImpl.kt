@@ -30,7 +30,8 @@ class FilesRepositoryImpl @Inject constructor(
         val wordsList = processedText.split(" ")
         wordsList.forEach { word ->
             if (word.isNotBlank()) {
-                val normalizedWord = normalizeWord(word)
+                //val normalizedWord = normalizeWord(word)
+                val normalizedWord = word
                 mapPosition.add(normalizedWord)
                 if (mapTimes.containsKey(normalizedWord)) {
                     mapTimes[normalizedWord] = mapTimes[normalizedWord]!! + 1

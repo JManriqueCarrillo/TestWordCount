@@ -12,7 +12,9 @@ class AssetsRepositoryImpl @Inject constructor(
 
     override fun getFiles(): List<String> {
         try {
-            return context.assets.list("")!!.toList()
+            return context.assets.list("")!!.filter {
+                it.contains(".txt")
+            }.toList()
         } catch (e: Exception) {
             e.printStackTrace()
         }

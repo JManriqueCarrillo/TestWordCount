@@ -45,8 +45,12 @@ class FilesDetailActivity : AppCompatActivity(), SearchView.OnQueryTextListener 
         setListeners()
         setAdapter()
 
-        viewModel.readFile("plrabn12.txt")
-        binding.fileName.text = "plrabn12.txt"
+        val fileName = intent.getStringExtra("file_name")
+
+        if (fileName != null && fileName.isNotBlank()) {
+            viewModel.readFile(fileName)
+            binding.fileName.text = fileName
+        }
     }
 
     private fun setListeners() {

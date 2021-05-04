@@ -67,16 +67,19 @@ class FilesDetailViewModel @Inject constructor(
 
     fun getWordTimes(): List<String> {
         _originalItemsList = _textFileProcessed.mapTimes
+        _listType.postValue("Word times")
         return _textFileProcessed.mapTimes
     }
 
     fun getWordPosition(): List<String> {
         _originalItemsList = _textFileProcessed.mapPosition
+        _listType.postValue("Word position")
         return _textFileProcessed.mapPosition
     }
 
     fun getWordAlphabetical(): List<String> {
         _originalItemsList = _textFileProcessed.mapOrder
+        _listType.postValue("Word alphabetical")
         return _textFileProcessed.mapOrder
     }
 

@@ -11,15 +11,6 @@ class FilesRepositoryImpl @Inject constructor(
     @ApplicationContext val context: Context
 ) : FilesRepository {
 
-    override fun getFiles(): List<String> {
-        try {
-            return context.assets.list("")!!.toList()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        return listOf()
-    }
-
     override suspend fun readFile(name: String): String {
         val inputStream: InputStream = context.assets.open(name)
         val size: Int = inputStream.available()
@@ -49,8 +40,6 @@ class FilesRepositoryImpl @Inject constructor(
                 }
             }
         }
-
-
 
         return TextFile(
             name,

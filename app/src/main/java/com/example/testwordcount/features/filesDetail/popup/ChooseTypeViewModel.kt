@@ -1,4 +1,4 @@
-package com.example.testwordcount.features.filesDetail
+package com.example.testwordcount.features.filesDetail.popup
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

@@ -2,14 +2,12 @@ package com.example.testwordcount.features.filesDetail
 
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.SearchView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
@@ -20,6 +18,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.testwordcount.R
 import com.example.testwordcount.adapters.FileDetailAdapter
 import com.example.testwordcount.databinding.ActivityFilesDetailBinding
+import com.example.testwordcount.features.filesDetail.popup.ChooseTypePopup
+import com.example.testwordcount.features.filesDetail.popup.ChooseTypeViewModel
 import com.example.testwordcount.utils.ViewState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
@@ -139,7 +139,7 @@ class FilesDetailActivity : AppCompatActivity(), SearchView.OnQueryTextListener 
     }
 
     override fun onQueryTextChange(query: String): Boolean {
-        //viewModel.filter(query)
+        viewModel.filter(query)
         return true
     }
 

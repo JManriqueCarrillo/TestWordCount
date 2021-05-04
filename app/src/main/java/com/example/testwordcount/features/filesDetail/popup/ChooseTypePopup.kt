@@ -1,4 +1,4 @@
-package com.example.testwordcount.features.filesDetail
+package com.example.testwordcount.features.filesDetail.popup
 
 import android.os.Bundle
 import android.view.LayoutInflater

@@ -30,6 +30,8 @@ class FilesDetailViewModel @Inject constructor(
     val listType: LiveData<String> get() = _listType
 
     private lateinit var _textFileProcessed: TextFile
+    private lateinit var _originalItemsList: List<String>
+    private lateinit var _filteredItemsList: List<String>
 
     init {
         _viewState.value = ViewState.Empty
@@ -44,10 +46,19 @@ class FilesDetailViewModel @Inject constructor(
             Log.d("RES", fileProcessed.toString())
 
             _textFileProcessed = fileProcessed
+            _originalItemsList = fileProcessed.mapPosition
             _listData.postValue(fileProcessed.mapPosition)
             _listType.postValue("Word position")
             _viewState.value = ViewState.Success
         }
+    }
+
+    fun filter(query: String) {
+        _filteredItemsList = _originalItemsList.filter {
+            it.contains(query)
+            //it.toLowerCase().contains(query.toLowerCase())
+        }
+        _listData.postValue(_filteredItemsList as MutableList<String>?)
     }
 
     fun getTextFile(): TextFile {
@@ -55,14 +66,17 @@ class FilesDetailViewModel @Inject constructor(
     }
 
     fun getWordTimes(): List<String> {
+        _originalItemsList = _textFileProcessed.mapTimes
         return _textFileProcessed.mapTimes
     }
 
     fun getWordPosition(): List<String> {
+        _originalItemsList = _textFileProcessed.mapPosition
         return _textFileProcessed.mapPosition
     }
 
     fun getWordAlphabetical(): List<String> {
+        _originalItemsList = _textFileProcessed.mapOrder
         return _textFileProcessed.mapOrder
     }
 

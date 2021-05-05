@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">TestWordCount</string>
+    <string name="menu_search">Buscar</string>
+    <string name="menu_settings">Settings</string>
+    <string name="label_position">POSITION</string>
+    <string name="label_alphabetical">ALPHABETICAL</string>
+    <string name="label_times">TIMES</string>
+    <string name="word_position">Word position</string>
+    <string name="word_times">Word times</string>
+    <string name="word_alphabetical">Word alphabetical</string>
 </resources>

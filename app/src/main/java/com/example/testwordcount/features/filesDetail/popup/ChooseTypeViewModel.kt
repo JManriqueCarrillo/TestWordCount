@@ -12,10 +12,10 @@ class ChooseTypeViewModel: ViewModel() {
         TIMES
     }
     
-    private val _list_type = MutableLiveData<LIST_TYPE>()
-    val list_type: LiveData<LIST_TYPE> get() = _list_type
+    private val _listType = MutableLiveData<LIST_TYPE>()
+    val listType: LiveData<LIST_TYPE> get() = _listType
 
     fun sentListType(type: LIST_TYPE) {
-        _list_type.value = type
+        _listType.value = type
     }
 }

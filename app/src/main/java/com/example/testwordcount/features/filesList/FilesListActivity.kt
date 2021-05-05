@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.get
 import androidx.lifecycle.lifecycleScope
@@ -19,9 +18,6 @@ import kotlinx.coroutines.flow.collect
 @AndroidEntryPoint
 class FilesListActivity : AppCompatActivity() {
 
-    //TODO Infinite scroll
-    //TODO Possibility to load an internal file outside from assets
-
     private lateinit var binding: ActivityFilesListBinding
     private lateinit var viewModel: FilesListViewModel
 
@@ -33,21 +29,20 @@ class FilesListActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         viewModel = ViewModelProvider(this).get()
-        viewModel.filesList.observe(this, Observer {
+        viewModel.filesList.observe(this, {
             fileAdapter.setData(it)
             fileAdapter.notifyDataSetChanged()
         })
 
         setupLifecycleScope()
         setAdapter()
-
         viewModel.getFiles()
     }
 
     private fun setAdapter() {
         fileAdapter = FileDetailAdapter(this, mutableListOf()) {
             intent = Intent(this, FilesDetailActivity::class.java)
-            intent.putExtra("file_name", it as String)
+            intent.putExtra(FilesDetailActivity.PARAM_FILE_NAME, it as String)
             startActivity(intent)
         }
         binding.itemsList.layoutManager =

@@ -3,7 +3,6 @@ package com.example.testwordcount.repository.impl
 import android.content.Context
 import com.example.testwordcount.repository.AssetsRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
-import java.io.InputStream
 import javax.inject.Inject
 
 class AssetsRepositoryImpl @Inject constructor(

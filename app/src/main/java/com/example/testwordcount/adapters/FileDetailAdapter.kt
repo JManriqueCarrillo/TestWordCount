@@ -2,7 +2,6 @@ package com.example.testwordcount.adapters
 
 import android.content.Context
 import android.graphics.Color
-import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -39,7 +38,7 @@ class FileDetailAdapter(
             } else {
                 holder.itemView.setBackgroundColor(Color.parseColor("#FFFFFF"))
             }
-            holder.itemView.setOnClickListener { _ ->
+            holder.itemView.setOnClickListener {
                 listener(data[position]!!)
             }
         }

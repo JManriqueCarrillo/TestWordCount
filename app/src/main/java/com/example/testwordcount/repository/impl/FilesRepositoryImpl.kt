@@ -24,14 +24,13 @@ class FilesRepositoryImpl @Inject constructor(
         val mapOrder = sortedSetOf<String>()
         val mapPosition = mutableSetOf<String>()
 
-        val pattern = Regex("""[\(\)\:\-\,\;\:\*\.\?\!\$\"\']""")
+        val pattern = Regex("""[\(\)\:\-\,\;\*\.\?\!\$\"\']""")
         val processedText = text.replace(pattern, " ").replace("\\s+".toRegex(), " ")
 
         val wordsList = processedText.split(" ")
         wordsList.forEach { word ->
             if (word.isNotBlank()) {
-                //val normalizedWord = normalizeWord(word)
-                val normalizedWord = word
+                val normalizedWord = normalizeWord(word)
                 mapPosition.add(normalizedWord)
                 if (mapTimes.containsKey(normalizedWord)) {
                     mapTimes[normalizedWord] = mapTimes[normalizedWord]!! + 1

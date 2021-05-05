@@ -1,15 +1,18 @@
 package com.example.testwordcount.features.filesDetail
 
-import android.util.Log
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.testwordcount.R
 import com.example.testwordcount.adapters.infiniteScroll.VIEW_TYPE.NUMBER_ITEMS_PER_PAGE
 import com.example.testwordcount.entities.TextFile
+import com.example.testwordcount.features.filesDetail.popup.ChooseTypeViewModel
 import com.example.testwordcount.repository.FilesRepository
 import com.example.testwordcount.utils.ViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,6 +22,7 @@ import kotlin.math.min
 
 @HiltViewModel
 class FilesDetailViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val filesRepository: FilesRepository
 ) : ViewModel() {
 
@@ -35,23 +39,19 @@ class FilesDetailViewModel @Inject constructor(
     private lateinit var _originalItemsList: List<String>
     private lateinit var _filteredItemsList: List<String>
 
-    init {
-        _viewState.value = ViewState.Empty
-    }
-
     fun readFile(name: String) {
         _viewState.value = ViewState.Loading
         viewModelScope.launch(Dispatchers.IO) {
-            val fileReaded = filesRepository.readFile(name)
-            val fileProcessed = filesRepository.processText(name, fileReaded)
-
-            Log.d("RES", fileProcessed.toString())
+            val fileRead = filesRepository.readFile(name)
+            val fileProcessed = filesRepository.processText(name, fileRead)
 
             _textFileProcessed = fileProcessed
             _originalItemsList = fileProcessed.mapPosition
             _filteredItemsList = _originalItemsList
+
             _listData.postValue(fileProcessed.mapPosition)
-            _listType.postValue("Word position")
+            _listType.postValue(context.getString(R.string.word_position))
+
             _viewState.value = ViewState.Success
         }
     }
@@ -59,7 +59,7 @@ class FilesDetailViewModel @Inject constructor(
     fun filter(query: String) {
         _filteredItemsList = _originalItemsList.filter {
             it.contains(query)
-            //it.toLowerCase().contains(query.toLowerCase())
+            //it.toLowerCase().contains(query.toLowerCase()) //To ignore Case Sensitive
         }
         _listData.postValue(_filteredItemsList as MutableList<String>?)
     }
@@ -74,25 +74,48 @@ class FilesDetailViewModel @Inject constructor(
         return _textFileProcessed
     }
 
-    fun getWordTimes(): List<String> {
+    fun getDataByType(type: ChooseTypeViewModel.LIST_TYPE): List<String>{
+        return when (type) {
+            ChooseTypeViewModel.LIST_TYPE.POSITION -> {
+                getWordPosition()
+            }
+            ChooseTypeViewModel.LIST_TYPE.ALPHABETICAL -> {
+                getWordAlphabetical()
+            }
+            ChooseTypeViewModel.LIST_TYPE.TIMES -> {
+                getWordTimes()
+            }
+        }
+    }
+
+    private fun getWordTimes(): List<String> {
         _originalItemsList = _textFileProcessed.mapTimes
         _filteredItemsList = _originalItemsList
-        _listType.postValue("Word times")
-        return _textFileProcessed.mapTimes
+        _listType.postValue(context.getString(R.string.word_times))
+        return _textFileProcessed.mapTimes.subList(
+            0,
+            min(NUMBER_ITEMS_PER_PAGE, _textFileProcessed.mapTimes.size)
+        )
     }
 
-    fun getWordPosition(): List<String> {
+    private fun getWordPosition(): List<String> {
         _originalItemsList = _textFileProcessed.mapPosition
         _filteredItemsList = _originalItemsList
-        _listType.postValue("Word position")
-        return _textFileProcessed.mapPosition
+        _listType.postValue(context.getString(R.string.word_position))
+        return _textFileProcessed.mapPosition.subList(
+            0,
+            min(NUMBER_ITEMS_PER_PAGE, _textFileProcessed.mapPosition.size)
+        )
     }
 
-    fun getWordAlphabetical(): List<String> {
+    private fun getWordAlphabetical(): List<String> {
         _originalItemsList = _textFileProcessed.mapOrder
         _filteredItemsList = _originalItemsList
-        _listType.postValue("Word alphabetical")
-        return _textFileProcessed.mapOrder
+        _listType.postValue(context.getString(R.string.word_alphabetical))
+        return _textFileProcessed.mapOrder.subList(
+            0,
+            min(NUMBER_ITEMS_PER_PAGE, _textFileProcessed.mapOrder.size)
+        )
     }
 
 }

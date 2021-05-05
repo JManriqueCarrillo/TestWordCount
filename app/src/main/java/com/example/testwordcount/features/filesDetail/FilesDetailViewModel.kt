@@ -35,6 +35,9 @@ class FilesDetailViewModel @Inject constructor(
     private val _listType = MutableLiveData<String>()
     val listType: LiveData<String> get() = _listType
 
+    private val _numberItems = MutableLiveData<Int>()
+    val numberItems: LiveData<Int> get() = _numberItems
+
     private lateinit var _textFileProcessed: TextFile
     private lateinit var _originalItemsList: List<String>
     private lateinit var _filteredItemsList: List<String>
@@ -51,6 +54,7 @@ class FilesDetailViewModel @Inject constructor(
 
             _listData.postValue(fileProcessed.mapPosition)
             _listType.postValue(context.getString(R.string.word_position))
+            _numberItems.postValue(_filteredItemsList.size)
 
             _viewState.value = ViewState.Success
         }
@@ -62,6 +66,7 @@ class FilesDetailViewModel @Inject constructor(
             //it.toLowerCase().contains(query.toLowerCase()) //To ignore Case Sensitive
         }
         _listData.postValue(_filteredItemsList as MutableList<String>?)
+        _numberItems.postValue(_filteredItemsList.size)
     }
 
     fun getMoreData(pageScroll: Int): List<String?> {

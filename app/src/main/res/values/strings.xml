@@ -8,4 +8,5 @@
     <string name="word_position">Word position</string>
     <string name="word_times">Word times</string>
     <string name="word_alphabetical">Word alphabetical</string>
+    <string name="sorted_by">Sorted by:</string>
 </resources>

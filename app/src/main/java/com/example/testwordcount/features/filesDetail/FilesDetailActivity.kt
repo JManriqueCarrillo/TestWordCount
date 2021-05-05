@@ -76,6 +76,9 @@ class FilesDetailActivity : AppCompatActivity(), SearchView.OnQueryTextListener 
         viewModel.listType.observe(this, {
             binding.sortTxt.text = it
         })
+        viewModel.numberItems.observe(this, {
+            binding.numberTxt.text = "($it)"
+        })
 
         typeViewModel = ViewModelProvider(this).get()
         typeViewModel.listType.observe(this, {

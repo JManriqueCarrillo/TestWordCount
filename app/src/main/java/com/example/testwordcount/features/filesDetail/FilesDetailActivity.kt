@@ -17,12 +17,20 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.testwordcount.R
 import com.example.testwordcount.adapters.FileDetailAdapter
+import com.example.testwordcount.adapters.infiniteScroll.InfiniteScroll
+import com.example.testwordcount.adapters.infiniteScroll.OnLoadMoreListener
+import com.example.testwordcount.adapters.infiniteScroll.VIEW_TYPE.NUMBER_ITEMS_PER_PAGE
 import com.example.testwordcount.databinding.ActivityFilesDetailBinding
 import com.example.testwordcount.features.filesDetail.popup.ChooseTypePopup
 import com.example.testwordcount.features.filesDetail.popup.ChooseTypeViewModel
 import com.example.testwordcount.utils.ViewState
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlin.math.min
 
 @AndroidEntryPoint
 class FilesDetailActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
@@ -33,6 +41,11 @@ class FilesDetailActivity : AppCompatActivity(), SearchView.OnQueryTextListener 
 
     private lateinit var fileAdapter: FileDetailAdapter
     private lateinit var searchView: SearchView
+
+    lateinit var loadMoreItemsCells: List<String?>
+    lateinit var scrollListener: InfiniteScroll
+
+    var pageScroll = 0
 
     private lateinit var list_type: ChooseTypeViewModel.LIST_TYPE
 
@@ -56,9 +69,10 @@ class FilesDetailActivity : AppCompatActivity(), SearchView.OnQueryTextListener 
     private fun setListeners() {
         viewModel = ViewModelProvider(this).get()
         viewModel.listData.observe(this, Observer {
-            fileAdapter.setData(it)
+            fileAdapter.setData(it.subList(0, min(NUMBER_ITEMS_PER_PAGE, it.size)))
             fileAdapter.notifyDataSetChanged()
             list_type = ChooseTypeViewModel.LIST_TYPE.POSITION
+            pageScroll = 1
         })
         viewModel.listType.observe(this, Observer {
             binding.sortTxt.text = it
@@ -69,21 +83,41 @@ class FilesDetailActivity : AppCompatActivity(), SearchView.OnQueryTextListener 
             when (it) {
                 ChooseTypeViewModel.LIST_TYPE.POSITION -> {
                     if (list_type != ChooseTypeViewModel.LIST_TYPE.POSITION) {
-                        fileAdapter.setData(viewModel.getWordPosition())
+                        fileAdapter.setData(
+                            viewModel.getWordPosition()
+                                .subList(
+                                    0,
+                                    min(NUMBER_ITEMS_PER_PAGE, viewModel.getWordPosition().size)
+                                )
+                        )
                     }
                 }
                 ChooseTypeViewModel.LIST_TYPE.ALPHABETICAL -> {
                     if (list_type != ChooseTypeViewModel.LIST_TYPE.ALPHABETICAL) {
-                        fileAdapter.setData(viewModel.getWordAlphabetical())
+                        fileAdapter.setData(
+                            viewModel.getWordAlphabetical()
+                                .subList(
+                                    0,
+                                    min(NUMBER_ITEMS_PER_PAGE, viewModel.getWordAlphabetical().size)
+                                )
+                        )
                     }
                 }
                 ChooseTypeViewModel.LIST_TYPE.TIMES -> {
                     if (list_type != ChooseTypeViewModel.LIST_TYPE.TIMES) {
-                        fileAdapter.setData(viewModel.getWordTimes())
+                        fileAdapter.setData(
+                            viewModel.getWordTimes()
+                                .subList(
+                                    0,
+                                    min(NUMBER_ITEMS_PER_PAGE, viewModel.getWordTimes().size)
+                                )
+                        )
                     }
                 }
             }
+            pageScroll = 0
             fileAdapter.notifyDataSetChanged()
+            binding.itemsList.scrollToPosition(0)
             list_type = it
         })
 
@@ -93,9 +127,18 @@ class FilesDetailActivity : AppCompatActivity(), SearchView.OnQueryTextListener 
         fileAdapter = FileDetailAdapter(this, mutableListOf()) { text ->
             //We can do anything with the text, like search on Wikipedia for example
         }
-        binding.itemsList.layoutManager =
-            LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+
+        val layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        binding.itemsList.layoutManager = layoutManager
+        binding.itemsList.setHasFixedSize(true)
+        scrollListener = InfiniteScroll(layoutManager)
+        scrollListener.setOnLoadMoreListener(object : OnLoadMoreListener {
+            override fun onLoadMore() {
+                loadMoreData()
+            }
+        })
         binding.itemsList.adapter = fileAdapter
+        binding.itemsList.addOnScrollListener(scrollListener)
     }
 
     private fun setupLifecycleScope() {
@@ -143,6 +186,7 @@ class FilesDetailActivity : AppCompatActivity(), SearchView.OnQueryTextListener 
     }
 
     override fun onQueryTextChange(query: String): Boolean {
+        pageScroll = 0
         viewModel.filter(query)
         return true
     }
@@ -153,5 +197,16 @@ class FilesDetailActivity : AppCompatActivity(), SearchView.OnQueryTextListener 
         inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
-
+    private fun loadMoreData() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { fileAdapter.addLoadingView() }
+            pageScroll++
+            loadMoreItemsCells = viewModel.getMoreData(pageScroll)
+            //delay(500) //To watch the spinner
+            withContext(Dispatchers.Main) { fileAdapter.removeLoadingView() }
+            fileAdapter.addData(loadMoreItemsCells)
+            scrollListener.setLoaded()
+            withContext(Dispatchers.Main) { fileAdapter.notifyDataSetChanged() }
+        }
+    }
 }

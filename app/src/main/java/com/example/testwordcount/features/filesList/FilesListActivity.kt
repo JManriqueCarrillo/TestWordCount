@@ -19,6 +19,9 @@ import kotlinx.coroutines.flow.collect
 @AndroidEntryPoint
 class FilesListActivity : AppCompatActivity() {
 
+    //TODO Infinite scroll
+    //TODO Possibility to load an internal file outside from assets
+
     private lateinit var binding: ActivityFilesListBinding
     private lateinit var viewModel: FilesListViewModel
 
